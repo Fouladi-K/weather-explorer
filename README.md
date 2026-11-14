@@ -1,17 +1,17 @@
 # 🌦️ Weather Model Explorer | کاوشگر مدل‌های هواشناسی
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-GitHub_Pages-blue?style=for-the-badge&logo=github)](https://YOUR_USERNAME.github.io/weather-explorer/)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-GitHub_Pages-blue?style=for-the-badge&logo=github)](https://Fouladi-K.github.io/weather-explorer/)
 [![Made with Vanilla JS](https://img.shields.io/badge/Made%20with-Vanilla%20JS-f7df1e?style=flat-square&logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![API: Open-Meteo](https://img.shields.io/badge/API-Open--Meteo-00b0ff?style=flat-square)](https://open-meteo.com/)
 
 **Weather Model Explorer** is a powerful, fully client-side web application designed to visualize ensemble weather forecasts, marine conditions, and air quality data. By leveraging the free [Open-Meteo API](https://open-meteo.com/), this app allows meteorology enthusiasts, researchers, and developers to compare multiple global weather models in real-time.
 
-🚀 **[View the Live Demo Here](https://YOUR_USERNAME.github.io/weather-explorer/)**
+🚀 **[View the Live Demo Here](https://Fouladi-K.github.io/weather-explorer/)**
 
 **کاوشگر مدل‌های هواشناسی** یک وب‌اپلیکیشن تعاملی و سمت کلاینت است که برای مشاهده و تحلیل پیش‌بینی‌های ensemble (احتمالاتی) مدل‌های هواشناسی، شرایط دریایی و داده‌های آلودگی هوا طراحی شده است. این برنامه با استفاده از API رایگان [Open-Meteo](https://open-meteo.com/) به شما اجازه می‌دهد تا مدل‌های مختلف جوی را با هم مقایسه کنید.
 
-🚀 **[مشاهده دموی آنلاین پروژه اینجا کلیک کنید](https://YOUR_USERNAME.github.io/weather-explorer/)**
+🚀 **[مشاهده دموی آنلاین پروژه اینجا کلیک کنید](https://Fouladi-K.github.io/weather-explorer/)**
 
 ---
 
