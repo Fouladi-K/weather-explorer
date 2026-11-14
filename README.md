@@ -1,6 +1,7 @@
 # Weather Model Explorer | کاوشگر مدل‌های هواشناسی
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-GitHub_Pages-blue)](https://your-username.github.io/weather-explorer/)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-GitHub_Pages-blue)](https://fouladi-k.github.io/weather-explorer/)
+[![Source Code](https://img.shields.io/badge/Source_Code-GitHub-black)](https://github.com/Fouladi-K/weather-explorer)
 [![Made with Vanilla JS](https://img.shields.io/badge/Made%20with-Vanilla%20JS-f7df1e.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
