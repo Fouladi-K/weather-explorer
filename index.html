@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive viewer for weather, marine, and air quality models. Bilingual (EN/FA), WMO icons, ensemble spread, and city search.">
+  <title>Weather Model Explorer</title>
+  
+  <!-- Plotly.js -->
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-theme="light" dir="ltr">
+
+  <button id="sidebar-toggle" title="Toggle sidebar" aria-label="Toggle sidebar">☰</button>
+
+  <aside id="sidebar">
+    <div id="sidebar-header">
+      <div class="lang-switch">
+        <button id="lang-en" class="active-lang">EN</button>
+        <button id="lang-fa">فا</button>
+      </div>
+
+      <!-- Location & Search -->
+      <div class="fieldset">
+        <legend id="lbl-location">Location</legend>
+        <div class="row">
+          <input type="text" id="city-search-input" placeholder="Search city globally..." style="flex:2;">
+          <button id="city-search-btn" style="flex:1;">🔍</button>
+        </div>
+        <div class="row">
+          <select id="city-select" style="flex:1;">
+            <option value="">— Select City —</option>
+          </select>
+        </div>
+        <div class="row">
+          <label id="lbl-lat">Lat</label>
+          <input type="number" id="lat" value="35.6944" step="0.0001">
+          <label id="lbl-lon">Lon</label>
+          <input type="number" id="lon" value="51.4215" step="0.0001">
+        </div>
+      </div>
+
+      <!-- Model -->
+      <div class="fieldset">
+        <legend id="lbl-model">Model</legend>
+        <select id="model">
+          <!-- Options injected dynamically -->
+        </select>
+      </div>
+
+      <button class="primary" id="fetch-btn">▶ Fetch &amp; Plot</button>
+      <div id="progress"><div id="progress-bar"></div></div>
+    </div>
+
+    <div id="sidebar-body">
+      <!-- Variables -->
+      <div class="fieldset">
+        <legend id="lbl-variables">Variables</legend>
+        <div class="row">
+          <label id="lbl-sort">Sort</label>
+          <select id="sort-mode">
+            <option value="default" id="opt-sort-default">Default</option>
+            <option value="name" id="opt-sort-name">Name (A–Z)</option>
+            <option value="classification" id="opt-sort-class">Classification</option>
+            <option value="level" id="opt-sort-level">Pressure level</option>
+          </select>
+        </div>
+        <div id="var-list"></div>
+        <div class="hint" id="hint-weather-code">Weather icons are fetched automatically.</div>
+        <div class="row" style="margin-top:6px;">
+          <button id="select-all-btn" style="flex:1;font-size:11px;" data-i18n="selectAll">Select All</button>
+          <button id="clear-btn" style="flex:1;font-size:11px;" data-i18n="clear">Clear</button>
+          <button id="info-btn" style="flex:1;font-size:11px;" data-i18n="info">ℹ Info</button>
+        </div>
+        <div class="row">
+          <button id="discover-btn" style="flex:1;font-size:11px;" data-i18n="discover">🔎 Discover</button>
+          <button id="refresh-cache-btn" style="flex:1;font-size:11px;" data-i18n="refresh">🔄 Refresh</button>
+        </div>
+        <div id="cache-info" style="font-size:11px;color:var(--muted);margin-top:4px;"></div>
+      </div>
+
+      <!-- Presets -->
+      <div class="fieldset">
+        <legend id="lbl-presets">Presets</legend>
+        <select id="preset-select" style="margin-bottom:6px;"></select>
+        <div class="preset-grid">
+          <button id="apply-preset" data-i18n="apply">Apply</button>
+          <button id="save-preset" data-i18n="savePreset">+ Save current</button>
+          <button id="delete-preset" class="danger" data-i18n="delete">Delete</button>
+          <button id="save-preset-file" data-i18n="exportJSON">Export JSON</button>
+        </div>
+      </div>
+
+      <!-- Time Range -->
+      <div class="fieldset">
+        <legend id="lbl-time">Time Range</legend>
+        <div class="row">
+          <label id="lbl-forecast">Forecast days</label>
+          <input type="number" id="forecast-days" value="15" min="1">
+        </div>
+        <div class="row">
+          <label id="lbl-past">Past days</label>
+          <input type="number" id="past-days" value="0" min="0" max="92">
+        </div>
+        <div class="row">
+          <label id="lbl-timezone">Timezone</label>
+          <select id="timezone">
+            <option>Asia/Tehran</option><option>UTC</option>
+            <option>Europe/Berlin</option><option>America/New_York</option>
+            <option>Asia/Tokyo</option><option>auto</option>
+          </select>
+        </div>
+        <div class="row">
+          <label id="lbl-tod">Time of day</label>
+          <select id="tod">
+            <option value="all" data-i18n="allHours">All hours</option>
+            <option value="00Z">00Z</option><option value="06Z">06Z</option>
+            <option value="12Z">12Z</option><option value="18Z">18Z</option>
+          </select>
+        </div>
+        <div class="row">
+          <label id="lbl-displaytz">Display tz</label>
+          <select id="display-tz">
+            <option value="local" data-i18n="local">Local</option>
+            <option value="utc" data-i18n="utc">UTC</option>
+          </select>
+        </div>
+        <div class="row">
+          <label id="lbl-calendar">Calendar</label>
+          <select id="calendar-system">
+            <option value="gregorian">Gregorian</option>
+            <option value="jalali">Persian (Jalali)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Display -->
+      <div class="fieldset">
+        <legend id="lbl-display">Display</legend>
+        <div class="row">
+          <label id="lbl-spread">Spread</label>
+          <select id="spread">
+            <option value="none" data-i18n="spreadNone">None</option>
+            <option value="iqr" data-i18n="spreadIQR">IQR band (25–75%)</option>
+            <option value="p10_90" data-i18n="spreadP10">10–90% band</option>
+            <option value="spaghetti" data-i18n="spreadSpag">Spaghetti (all members)</option>
+            <option value="spaghetti_band" data-i18n="spreadBoth">Spaghetti + IQR</option>
+          </select>
+        </div>
+        <div class="row">
+          <label><input type="checkbox" id="show-mean" checked> <span data-i18n="showMean">Show ensemble mean</span></label>
+        </div>
+        <div class="row">
+          <label id="lbl-highlight">Highlight members</label>
+          <input type="text" id="highlight-members" placeholder="0, 5, 12-15 or all" value="">
+        </div>
+        <div class="row">
+          <label><input type="checkbox" id="autoscale" checked> <span data-i18n="autoScale">Auto-scale Y</span></label>
+          <label id="lbl-pad">Pad %</label>
+          <input type="number" id="padding" value="5" min="0" max="100" style="width:60px;">
+        </div>
+        <div class="row">
+          <label><input type="checkbox" id="log-y"> <span data-i18n="logY">Log Y (positive only)</span></label>
+        </div>
+        <div class="row">
+          <label><input type="checkbox" id="show-day-grid" checked> <span data-i18n="dayGrid">Day grid</span></label>
+          <label><input type="checkbox" id="show-hour-grid"> <span data-i18n="hourGrid">Hour grid</span></label>
+        </div>
+        <div class="row">
+          <label><input type="checkbox" id="show-icons" checked> <span data-i18n="weatherIcons">Weather icons (WMO)</span></label>
+        </div>
+        <div class="row">
+          <label><input type="checkbox" id="dark-mode"> <span data-i18n="darkMode">Dark mode</span></label>
+        </div>
+      </div>
+
+      <!-- Units -->
+      <div class="fieldset">
+        <legend id="lbl-units">Units</legend>
+        <div class="row">
+          <label id="lbl-tempunit">Temperature</label>
+          <select id="temp-unit">
+            <option value="celsius">°C</option><option value="fahrenheit">°F</option>
+          </select>
+        </div>
+        <div class="row">
+          <label id="lbl-windunit">Wind speed</label>
+          <select id="wind-unit">
+            <option value="ms">m/s</option><option value="kmh">km/h</option>
+            <option value="mph">mph</option><option value="kn">kn</option>
+          </select>
+        </div>
+        <div class="row">
+          <label id="lbl-precipunit">Precipitation</label>
+          <select id="precip-unit">
+            <option value="mm">mm</option><option value="inch">in</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Export -->
+      <div class="fieldset">
+        <legend id="lbl-export">Export</legend>
+        <div class="row">
+          <button id="save-csv" style="flex:1;" data-i18n="saveCSV">💾 CSV</button>
+          <button id="save-png" style="flex:1;" data-i18n="savePNG">🖼 PNG</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main id="main">
+    <div id="plot-container"></div>
+    <div id="status-bar">Ready. Click <strong>Fetch &amp; Plot</strong> to begin.</div>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script src="js/jalaali.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
