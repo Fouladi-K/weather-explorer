@@ -1174,6 +1174,90 @@ function exportPNG() {
   Plotly.downloadImage("plot-container", { format: "png", width: 1600, height: 1000, filename: "ensemble_forecast" });
   toast(t("toastPNGSaved"));
 }
+async function discoverVariables(modelId, lat, lon, statusCallback) {
+  let candidates = [];
+  
+  if (modelId === "open_meteo_air_quality") {
+    candidates = ["pm2_5", "pm10", "carbon_monoxide", "nitrogen_dioxide", "sulphur_dioxide", "ozone", "european_aqi", "us_aqi", "dust", "uv_index", "ammonia", "methane"];
+  } else if (modelId === "open_meteo_marine") {
+    candidates = ["wave_height", "wave_direction", "wave_period", "swell_wave_height", "swell_wave_direction", "swell_wave_period", "sea_surface_temperature"];
+  } else {
+    candidates = [...new Set([
+      ...DEFAULT_VARS_ENSEMBLE, ...DEFAULT_VARS_MEAN,
+      "temperature_80m", "wind_speed_80m", "wind_direction_80m",
+      "sea_surface_temperature", "snowfall_water_equivalent"
+    ])];
+  }
+
+  const mapped = candidates.filter(c => SDK_MAP[c] || modelId === "open_meteo_air_quality" || modelId === "open_meteo_marine");
+  const found = new Set();
+  const CHUNK = 20;
+  const total = Math.ceil(mapped.length / CHUNK);
+
+  for (let i = 0; i < mapped.length; i += CHUNK) {
+    const chunk = mapped.slice(i, i + CHUNK);
+    if (statusCallback) statusCallback(`${Math.floor(i / CHUNK) + 1}/${total}...`);
+    try {
+      const params = { 
+        latitude: lat, longitude: lon, 
+        hourly: chunk, forecast_days: 1 
+      };
+      if (modelId !== "open_meteo_air_quality" && modelId !== "open_meteo_marine") {
+        params.models = modelId;
+      }
+      
+      const data = await fetchEnsemble(params, modelId);
+      if (data.hourly) {
+        for (const k of Object.keys(data.hourly)) {
+          if (k === "time") continue;
+          const base = k.replace(/_member\d+$/, "");
+          if (!AUTO_VARS.includes(base)) found.add(base);
+        }
+      }
+    } catch (e) { 
+      console.warn(`Chunk ${Math.floor(i / CHUNK) + 1} failed:`, e); 
+    }
+    if (i + CHUNK < mapped.length) await new Promise(r => setTimeout(r, 1500));
+  }
+  return [...found];
+}
+
+async function doDiscover(force = false) {
+  const modelId = $("model").value;
+  const lat = parseFloat($("lat").value);
+  const lon = parseFloat($("lon").value);
+
+  // اگر کش وجود دارد و کاربر دکمه Refresh را نزده است، از کش استفاده کن
+  if (!force && state.cache[modelId] && state.cache[modelId].variables.length > 0) {
+    state.variables = state.cache[modelId].variables;
+    renderVariableList();
+    $("cache-info").innerHTML = `${t("cachedList")}: ${state.variables.length} <span class="badge ok">${t("cached")}</span>`;
+    return;
+  }
+
+  progress(true);
+  setStatus(t("discovering"));
+  
+  try {
+    const found = await discoverVariables(modelId, lat, lon, msg => setStatus(`${t("discovering")} ${msg}`));
+    
+    if (found.length > 0) {
+      state.variables = found;
+      state.cache[modelId] = { variables: found, timestamp: Date.now() };
+      saveCache(state.cache);
+    } else {
+      toast("No variables found via Discovery. Using defaults.", true);
+    }
+    
+    renderVariableList();
+    $("cache-info").innerHTML = `${t("discoveryComplete")}: ${found.length} <span class="badge ok">fresh</span>`;
+    toast(`${t("discoveryComplete")}: ${found.length} variables.`);
+  } catch (e) {
+    toast(`${t("toastDiscoveryFailed")} ${e.message}`, true);
+  } finally {
+    progress(false);
+  }
+}
 
 function wireEvents() {
   $("lang-en").addEventListener("click", () => setLanguage("en")); $("lang-fa").addEventListener("click", () => setLanguage("fa"));
