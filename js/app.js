@@ -760,10 +760,16 @@ function buildPlot(timeIndex, rawTimes, varData, opts) {
     plot_bgcolor: opts.dark ? "#1f2937" : "#ffffff",
     font: { color: opts.dark ? "#f3f4f6" : "#1f2937", size: 10 },
     hovermode: "x unified",
-    hoverlabel: { bgcolor: opts.dark ? "#111827" : "#ffffff", bordercolor: opts.dark ? "#374151" : "#d0d4dc", font: { size: 11, color: opts.dark ? "#f3f4f6" : "#1f2937" }, namelength: -1 },
+    hoverlabel: {
+      bgcolor: opts.dark ? "#111827" : "#ffffff",
+      bordercolor: opts.dark ? "#374151" : "#d0d4dc",
+      font: { size: 11, color: opts.dark ? "#f3f4f6" : "#1f2937" },
+      namelength: -1,
+    },
     legend: { orientation: "h", y: 1.04, x: 0, font: { size: 10 } },
     grid: { rows: varData.length, columns: 1, pattern: "independent" },
-    annotations: [], shapes: []
+    annotations: [],
+    shapes: [],
   };
 
   const nVars = varData.length;
@@ -772,13 +778,59 @@ function buildPlot(timeIndex, rawTimes, varData, opts) {
   const jalaliStrings = rawTimes.map(getJalaliString);
 
   const AQI_BANDS = {
-    "us_aqi": [{ y0: 0, y1: 50, color: "rgba(0, 228, 0, 0.10)" }, { y0: 50, y1: 100, color: "rgba(255, 255, 0, 0.10)" }, { y0: 100, y1: 150, color: "rgba(255, 126, 0, 0.10)" }, { y0: 150, y1: 200, color: "rgba(255, 0, 0, 0.10)" }, { y0: 200, y1: 300, color: "rgba(143, 63, 151, 0.10)" }, { y0: 300, y1: 500, color: "rgba(126, 0, 35, 0.10)" }],
-    "european_aqi": [{ y0: 0, y1: 20, color: "rgba(80, 240, 230, 0.10)" }, { y0: 20, y1: 40, color: "rgba(80, 240, 100, 0.10)" }, { y0: 40, y1: 60, color: "rgba(240, 240, 80, 0.10)" }, { y0: 60, y1: 80, color: "rgba(240, 100, 80, 0.10)" }, { y0: 80, y1: 100, color: "rgba(200, 80, 240, 0.10)" }, { y0: 100, y1: 500, color: "rgba(120, 0, 0, 0.10)" }],
-    "pm2_5": [{ y0: 0, y1: 10, color: "rgba(0, 228, 0, 0.10)" }, { y0: 10, y1: 25, color: "rgba(255, 255, 0, 0.10)" }, { y0: 25, y1: 50, color: "rgba(255, 126, 0, 0.10)" }, { y0: 50, y1: 100, color: "rgba(255, 0, 0, 0.10)" }, { y0: 100, y1: 200, color: "rgba(143, 63, 151, 0.10)" }, { y0: 200, y1: 500, color: "rgba(126, 0, 35, 0.10)" }],
-    "pm10": [{ y0: 0, y1: 20, color: "rgba(0, 228, 0, 0.10)" }, { y0: 20, y1: 50, color: "rgba(255, 255, 0, 0.10)" }, { y0: 50, y1: 100, color: "rgba(255, 126, 0, 0.10)" }, { y0: 100, y1: 200, color: "rgba(255, 0, 0, 0.10)" }, { y0: 200, y1: 400, color: "rgba(143, 63, 151, 0.10)" }, { y0: 400, y1: 600, color: "rgba(126, 0, 35, 0.10)" }],
-    "nitrogen_dioxide": [{ y0: 0, y1: 40, color: "rgba(0, 228, 0, 0.10)" }, { y0: 40, y1: 100, color: "rgba(255, 255, 0, 0.10)" }, { y0: 100, y1: 200, color: "rgba(255, 126, 0, 0.10)" }, { y0: 200, y1: 400, color: "rgba(255, 0, 0, 0.10)" }, { y0: 400, y1: 800, color: "rgba(143, 63, 151, 0.10)" }],
-    "ozone": [{ y0: 0, y1: 100, color: "rgba(0, 228, 0, 0.10)" }, { y0: 100, y1: 160, color: "rgba(255, 255, 0, 0.10)" }, { y0: 160, y1: 240, color: "rgba(255, 126, 0, 0.10)" }, { y0: 240, y1: 300, color: "rgba(255, 0, 0, 0.10)" }, { y0: 300, y1: 500, color: "rgba(143, 63, 151, 0.10)" }],
-    "sulphur_dioxide": [{ y0: 0, y1: 40, color: "rgba(0, 228, 0, 0.10)" }, { y0: 40, y1: 80, color: "rgba(255, 255, 0, 0.10)" }, { y0: 80, y1: 200, color: "rgba(255, 126, 0, 0.10)" }, { y0: 200, y1: 400, color: "rgba(255, 0, 0, 0.10)" }, { y0: 400, y1: 1000, color: "rgba(143, 63, 151, 0.10)" }]
+    "us_aqi": [
+      { y0: 0, y1: 50, color: "rgba(0, 228, 0, 0.10)" },
+      { y0: 50, y1: 100, color: "rgba(255, 255, 0, 0.10)" },
+      { y0: 100, y1: 150, color: "rgba(255, 126, 0, 0.10)" },
+      { y0: 150, y1: 200, color: "rgba(255, 0, 0, 0.10)" },
+      { y0: 200, y1: 300, color: "rgba(143, 63, 151, 0.10)" },
+      { y0: 300, y1: 500, color: "rgba(126, 0, 35, 0.10)" }
+    ],
+    "european_aqi": [
+      { y0: 0, y1: 20, color: "rgba(80, 240, 230, 0.10)" },
+      { y0: 20, y1: 40, color: "rgba(80, 240, 100, 0.10)" },
+      { y0: 40, y1: 60, color: "rgba(240, 240, 80, 0.10)" },
+      { y0: 60, y1: 80, color: "rgba(240, 100, 80, 0.10)" },
+      { y0: 80, y1: 100, color: "rgba(200, 80, 240, 0.10)" },
+      { y0: 100, y1: 500, color: "rgba(120, 0, 0, 0.10)" }
+    ],
+    "pm2_5": [
+      { y0: 0, y1: 10, color: "rgba(0, 228, 0, 0.10)" },
+      { y0: 10, y1: 25, color: "rgba(255, 255, 0, 0.10)" },
+      { y0: 25, y1: 50, color: "rgba(255, 126, 0, 0.10)" },
+      { y0: 50, y1: 100, color: "rgba(255, 0, 0, 0.10)" },
+      { y0: 100, y1: 200, color: "rgba(143, 63, 151, 0.10)" },
+      { y0: 200, y1: 500, color: "rgba(126, 0, 35, 0.10)" }
+    ],
+    "pm10": [
+      { y0: 0, y1: 20, color: "rgba(0, 228, 0, 0.10)" },
+      { y0: 20, y1: 50, color: "rgba(255, 255, 0, 0.10)" },
+      { y0: 50, y1: 100, color: "rgba(255, 126, 0, 0.10)" },
+      { y0: 100, y1: 200, color: "rgba(255, 0, 0, 0.10)" },
+      { y0: 200, y1: 400, color: "rgba(143, 63, 151, 0.10)" },
+      { y0: 400, y1: 600, color: "rgba(126, 0, 35, 0.10)" }
+    ],
+    "nitrogen_dioxide": [
+      { y0: 0, y1: 40, color: "rgba(0, 228, 0, 0.10)" },
+      { y0: 40, y1: 100, color: "rgba(255, 255, 0, 0.10)" },
+      { y0: 100, y1: 200, color: "rgba(255, 126, 0, 0.10)" },
+      { y0: 200, y1: 400, color: "rgba(255, 0, 0, 0.10)" },
+      { y0: 400, y1: 800, color: "rgba(143, 63, 151, 0.10)" }
+    ],
+    "ozone": [
+      { y0: 0, y1: 100, color: "rgba(0, 228, 0, 0.10)" },
+      { y0: 100, y1: 160, color: "rgba(255, 255, 0, 0.10)" },
+      { y0: 160, y1: 240, color: "rgba(255, 126, 0, 0.10)" },
+      { y0: 240, y1: 300, color: "rgba(255, 0, 0, 0.10)" },
+      { y0: 300, y1: 500, color: "rgba(143, 63, 151, 0.10)" }
+    ],
+    "sulphur_dioxide": [
+      { y0: 0, y1: 40, color: "rgba(0, 228, 0, 0.10)" },
+      { y0: 40, y1: 80, color: "rgba(255, 255, 0, 0.10)" },
+      { y0: 80, y1: 200, color: "rgba(255, 126, 0, 0.10)" },
+      { y0: 200, y1: 400, color: "rgba(255, 0, 0, 0.10)" },
+      { y0: 400, y1: 1000, color: "rgba(143, 63, 151, 0.10)" }
+    ]
   };
 
   varData.forEach((entry, i) => {
@@ -786,24 +838,35 @@ function buildPlot(timeIndex, rawTimes, varData, opts) {
     const xaxisRef = i === 0 ? "x" : `x${i + 1}`;
     const yaxisRef = i === 0 ? "y" : `y${i + 1}`;
 
+    // --- رسم باندهای رنگی برای آلاینده‌ها ---
     if (AQI_BANDS[name]) {
       AQI_BANDS[name].forEach(band => {
-        layout.shapes.push({ type: "rect", xref: xaxisRef, yref: yaxisRef, x0: timeIndex[0], x1: timeIndex[timeIndex.length - 1], y0: band.y0, y1: band.y1, fillcolor: band.color, line: { width: 0 }, layer: "below" });
+        layout.shapes.push({
+          type: "rect", xref: xaxisRef, yref: yaxisRef,
+          x0: timeIndex[0], x1: timeIndex[timeIndex.length - 1],
+          y0: band.y0, y1: band.y1,
+          fillcolor: band.color, line: { width: 0 }, layer: "below"
+        });
       });
     }
 
+    // --- X-Axis Config ---
     layout[`xaxis${i === 0 ? "" : i + 1}`] = {
       type: "date", showgrid: false,
       tickformatstops: [
-        { dtickrange: [null, 60_000], value: "%H:%M:%S" }, { dtickrange: [60_000, 3_600_000], value: "%H:%M" },
-        { dtickrange: [3_600_000, 86_400_000], value: "%d %B<br>%H:%M" }, { dtickrange: [86_400_000, "M1"], value: "%d %B" },
-        { dtickrange: ["M1", "M12"], value: "%B %Y" }, { dtickrange: ["M12", null], value: "%Y" }
+        { dtickrange: [null, 60_000], value: "%H:%M:%S" },
+        { dtickrange: [60_000, 3_600_000], value: "%H:%M" },
+        { dtickrange: [3_600_000, 86_400_000], value: "%d %B<br>%H:%M" },
+        { dtickrange: [86_400_000, "M1"], value: "%d %B" },
+        { dtickrange: ["M1", "M12"], value: "%B %Y" },
+        { dtickrange: ["M12", null], value: "%Y" },
       ],
       hoverformat: calendarSystem === "jalali" ? "%d %B %Y — %H:%M" : "%a %b %d, %Y — %H:%M",
-      zeroline: false, anchor: yaxisRef
+      zeroline: false, anchor: yaxisRef,
     };
     if (i > 0) layout[`xaxis${i + 1}`].matches = "x";
 
+    // --- Custom Jalali Ticks ---
     if (calendarSystem === "jalali") {
       let tickVals = [], tickText = [];
       let start = new Date(timeIndex[0]); start.setHours(12, 0, 0, 0);
@@ -828,11 +891,22 @@ function buildPlot(timeIndex, rawTimes, varData, opts) {
       }
     }
 
-    layout[`yaxis${i + 1}`] = { title: { text: `${name} [${d.unit || ""}]`, font: { size: 9 } }, showgrid: true, gridcolor: opts.dark ? "#374151" : "#e5e7eb", zeroline: false, anchor: xaxisRef };
-    const top = 1 - i * rowHeight, bottom = 1 - (i + 1) * rowHeight + 0.01;
+    // --- Y-Axis Config ---
+    layout[`yaxis${i + 1}`] = {
+      title: { text: `${name} [${d.unit || ""}]`, font: { size: 9 } },
+      showgrid: true,
+      gridcolor: opts.dark ? "#374151" : "#e5e7eb",
+      zeroline: false, anchor: xaxisRef,
+    };
+
+    const top = 1 - i * rowHeight;
+    const bottom = 1 - (i + 1) * rowHeight + 0.01;
     layout[`yaxis${i + 1}`].domain = [bottom, top];
 
-    const isSingleMember = d.members.length <= 1, spread = opts.spread;
+    const isSingleMember = d.members.length <= 1;
+    const spread = opts.spread;
+
+    // --- Spreads ---
     if (!isSingleMember) {
       if (spread === "iqr" || spread === "spaghetti_band") {
         traces.push({ x: timeIndex, y: d.p75, type: "scatter", mode: "lines", line: { width: 0 }, showlegend: i === 0 && nVars > 0, name: "IQR (25–75%)", fillcolor: "rgba(76,143,209,0.25)", fill: "tonexty", xaxis: xaxisRef, yaxis: yaxisRef, hoverinfo: "skip" });
@@ -849,6 +923,7 @@ function buildPlot(timeIndex, rawTimes, varData, opts) {
       }
     }
 
+    // --- Highlighted Members ---
     if (opts.highlight.length > 0) {
       const colors = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#a65628", "#f781bf", "#999999"];
       opts.highlight.forEach((m, k) => {
@@ -858,12 +933,15 @@ function buildPlot(timeIndex, rawTimes, varData, opts) {
       });
     }
 
+    // --- Mean Line ---
     if (opts.showMean) {
       traces.push({ x: timeIndex, y: d.mean, type: "scatter", mode: "lines", line: { color: "#1f77b4", width: 2 }, name: "Ensemble mean", showlegend: i === 0, xaxis: xaxisRef, yaxis: yaxisRef, customdata: jalaliStrings, hovertemplate: calendarSystem === "jalali" ? "<b>%{fullData.name}</b><br>%{customdata}<br>%{y}<extra></extra>" : "<b>%{fullData.name}</b><br>%{x|%a %b %d, %Y — %H:%M}<br>%{y}<extra></extra>" });
     }
 
+    // --- Zero Line ---
     traces.push({ x: [timeIndex[0], timeIndex[timeIndex.length - 1]], y: [0, 0], type: "scatter", mode: "lines", line: { color: "#888", width: 0.5, dash: "dash" }, showlegend: false, hoverinfo: "skip", xaxis: xaxisRef, yaxis: yaxisRef });
 
+    // --- Grid Lines (Day & Hour) ---
     if (opts.showDayGrid) {
       let lastDay = null;
       for (let t = 0; t < rawTimes.length; t++) {
@@ -884,31 +962,62 @@ function buildPlot(timeIndex, rawTimes, varData, opts) {
       }
     }
 
+    // --- Weather Icons ---
     if (i === 0 && opts.showIcons && opts.weatherCodes) {
       const iconAnns = buildWeatherIconAnnotations(timeIndex, rawTimes, opts.weatherCodes, opts.isDayArray, opts, xaxisRef, yaxisRef);
       layout.annotations.push(...iconAnns);
     }
   });
 
+  // --- Auto-scale Y (با در نظر گرفتن مینیمم و ماکسیمم تمام اعضا) ---
   if (opts.autoscale) {
     varData.forEach((entry, i) => {
-      const d = entry.d, finite = d.mean.filter(v => v != null && !isNaN(v));
-      if (finite.length > 0) {
-        const mn = Math.min(...finite), mx = Math.max(...finite);
+      const d = entry.d;
+      let mn = Infinity, mx = -Infinity, hasData = false;
+
+      // اگر اعضا وجود دارند، بین همه آن‌ها جستجو کن
+      if (d.members && d.members.length > 0) {
+        for (let m = 0; m < d.members.length; m++) {
+          const arr = d.members[m];
+          for (let t = 0; t < arr.length; t++) {
+            const val = arr[t];
+            if (val != null && !isNaN(val)) {
+              if (val < mn) mn = val;
+              if (val > mx) mx = val;
+              hasData = true;
+            }
+          }
+        }
+      } else {
+        // در غیر این صورت (فقط میانگین)، بین داده‌های میانگین جستجو کن
+        for (let t = 0; t < d.mean.length; t++) {
+          const val = d.mean[t];
+          if (val != null && !isNaN(val)) {
+            if (val < mn) mn = val;
+            if (val > mx) mx = val;
+            hasData = true;
+          }
+        }
+      }
+
+      if (hasData) {
         const span = mx - mn || Math.max(Math.abs(mx), 1);
         const pad = span * (opts.paddingPct / 100);
         let ymin = mn - pad;
-        if (mn >= 0 && ymin < 0) ymin = 0;
-        
+        if (mn >= 0 && ymin < 0) ymin = 0; // عدم نمایش مقادیر منفی برای داده‌های مثبت
+
         const bands = AQI_BANDS[entry.name];
         let topLimit = mx + pad;
+        
         if (bands) {
           let bandIndex = bands.findIndex(b => mx <= b.y1);
           if (bandIndex === -1) bandIndex = bands.length - 1;
+          
           topLimit = bands[bandIndex].y1;
           if (bandIndex === 0 && bands.length > 1) topLimit = bands[1].y1;
           if (topLimit < mx + pad) topLimit = mx + pad;
         }
+        
         layout[`yaxis${i + 1}`].range = [ymin, topLimit];
       }
     });
