@@ -166,6 +166,13 @@
         </div>
         <div class="row">
           <label><input type="checkbox" id="autoscale" checked> <span data-i18n="autoScale">Auto-scale Y</span></label>
+        </div>
+        <div class="row">
+          <label id="lbl-y-basis">Y-Axis Basis</label>
+          <select id="y-basis">
+            <option value="mean" data-i18n="basisMean">Mean only</option>
+            <option value="members" data-i18n="basisMembers">All members</option>
+          </select>
           <label id="lbl-pad">Pad %</label>
           <input type="number" id="padding" value="5" min="0" max="100" style="width:60px;">
         </div>
